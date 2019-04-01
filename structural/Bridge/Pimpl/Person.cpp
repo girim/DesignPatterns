@@ -1,6 +1,7 @@
 #include "Person.hpp"
 
-class Person::PersonImpl
+ //Inner class
+class Person::PersonImpl  
 {
     public:
         void greet(Person* p);
