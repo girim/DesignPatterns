@@ -13,8 +13,6 @@ struct Database
 class SingletonDatabase : public Database
 {
     public:
-        ~SingletonDatabase() {};
-
         //Make sure copy constructor and copy-assignement constructor are deleted
         SingletonDatabase(const SingletonDatabase& sdb) = delete;
         SingletonDatabase& operator=(const SingletonDatabase& sdb) = delete;
@@ -31,7 +29,9 @@ class SingletonDatabase : public Database
         }
 
     private:
-        std::map<std::string, std::string> capitalsDB_;
+        typedef std::string cityName;
+        typedef std::string population;
+        std::map<cityName, population> capitalsDB_;
 
         SingletonDatabase()
         {
@@ -44,6 +44,7 @@ class SingletonDatabase : public Database
                 capitalsDB_.emplace(s1, s2);
             }
         }
+       ~SingletonDatabase() {};
 };
 
 class DummyDatabase : public Database
@@ -64,6 +65,22 @@ class DummyDatabase : public Database
         std::map<std::string, std::string> dummyCapitals_;
 };
 
+class SingletonRecordFinder
+{
+    public:
+        //This class function is tightly coupled with SingeletonDb instance
+        int getTotalPopulation(std::vector<std::string> cityNames)
+        {
+            int result{0};
+        
+            for(const auto& city : cityNames)
+            {
+                result += boost::lexical_cast<int>(SingletonDatabase::getInstance().getPopulation(city));
+            }
+            return result;
+        }
+};
+
 class ConfigurableRecordFinder 
 {
     public:
@@ -80,29 +97,14 @@ class ConfigurableRecordFinder
             return result;
         }
 
+        //WRONG: Cannot reassign to reference variable
         void setDBInstance(Database& db)
         {
-            this->db_ = db;
+            db_ = db;
         }
 
     private:
         Database& db_;
-};
-
-class SingletonRecordFinder
-{
-    public:
-        //This class function is tightly coupled to SingeletonDb instance
-        int getTotalPopulation(std::vector<std::string> cityNames)
-        {
-            int result{0};
-        
-            for(const auto& city : cityNames)
-            {
-                result += boost::lexical_cast<int>(SingletonDatabase::getInstance().getPopulation(city));
-            }
-            return result;
-        }
 };
 
 int main(int argc, char const *argv[])
@@ -114,12 +116,12 @@ int main(int argc, char const *argv[])
     DummyDatabase ddb{};
     ConfigurableRecordFinder crf{ddb};
 
-
     std::vector<std::string> dCities{"Alpha", "Beta"};
     std::cout << crf.getTotalPopulation(dCities) << "\n";
-/* 
-    crf.setDBInstance(SingletonDatabase::getInstance());
-    std::cout << crf.getTotalPopulation(cities) << "\n"; */
+
+    ConfigurableRecordFinder crf1{SingletonDatabase::getInstance()};
+    //crf1.setDBInstance(SingletonDatabase::getInstance());
+    std::cout << crf1.getTotalPopulation(cities) << "\n";
 
     return 0;
 }
