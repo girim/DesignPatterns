@@ -1,0 +1,8 @@
+NewDehli
+100000
+Tokyo
+200000
+Berlin
+300000
+Vienna
+300000

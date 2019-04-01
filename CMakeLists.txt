@@ -1,0 +1,12 @@
+cmake_minimum_required(VERSION 3.5.1)
+set(Boost_INCLUDE_DIR /usr/local/lib/boost_1_61_0)
+set(BOOST_LIBRARYDIR, /usr/local/lib/boost_1_61_0/libs)
+find_package(Boost COMPONENTS system filesystem REQUIRED)
+include_directories(${Boost_INCLUDE_DIR})
+link_directories(${BOOST_LIBRARYDIR})
+set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-std=c++11 -pthread")
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+project(future)
+add_executable(async_example async_example.cpp)
+target_link_libraries( ${Boost_LIBRARIES})
